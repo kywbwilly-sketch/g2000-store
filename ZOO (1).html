@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>G2000｜線上購物（Demo）</title>
+  <meta name="description" content="G2000 風格示範購物網站：商品瀏覽、搜尋、分類、購物車、結帳提示。" />
+  <style>
+    :root{
+      --bg:#0b0c0f;
+      --panel:#11131a;
+      --card:#141826;
+      --text:#e9ecf1;
+      --muted:#aeb6c6;
+      --line:rgba(255,255,255,.08);
+      --accent:#ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", Arial;
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(255,255,255,.12), transparent 55%),
+                  radial-gradient(1200px 700px at 90% 0%, rgba(255,255,255,.08), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:1160px; margin:0 auto; padding:24px}
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom, rgba(11,12,15,.85), rgba(11,12,15,.65));
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:14px 24px;
+      max-width:1160px; margin:0 auto;
+    }
+    .brand{
+      display:flex; align-items:baseline; gap:10px;
+      letter-spacing:.12em;
+    }
+    .brand strong{font-size:18px}
+    .brand span{color:var(--muted); font-size:12px; letter-spacing:.18em}
+    .tools{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .pill{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      padding:10px 12px;
+      border-radius:999px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .pill input, .pill select{
+      background:transparent; border:0; outline:0; color:var(--text);
+      font-size:14px;
+    }
+    .pill input{min-width:220px}
+    .pill select{cursor:pointer}
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      display:flex; align-items:center; gap:10px;
+      transition: transform .08s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .btn:active{transform:scale(.98)}
+    .badge{
+      min-width:22px; height:22px; border-radius:999px;
+      display:inline-flex; align-items:center; justify-content:center;
+      font-size:12px;
+      background:var(--accent); color:#111;
+      padding:0 7px;
+    }
+
+    .hero{padding:26px 0 18px}
+    .heroCard{
+      background: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
+      padding:22px;
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap:18px;
+      overflow:hidden;
+    }
+    .hero h1{margin:0 0 10px; font-size:26px; letter-spacing:.06em}
+    .hero p{margin:0; color:var(--muted); line-height:1.6}
+    .hero .meta{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;
+    }
+    .chip{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px; color:var(--muted);
+    }
+    .heroSide{
+      border-left:1px solid var(--line);
+      padding-left:18px;
+      display:flex; flex-direction:column; justify-content:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .heroSide strong{color:var(--text); font-size:14px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+      padding:18px 0 30px;
+    }
+    .filters{
+      grid-column: span 3;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      height:fit-content;
+    }
+    .filters h3{margin:0 0 10px; font-size:14px; letter-spacing:.08em}
+    .filters .group{margin-top:14px}
+    .filters .label{color:var(--muted); font-size:12px; margin-bottom:8px}
+    .filters .row{display:flex; flex-wrap:wrap; gap:8px}
+    .tag{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--text);
+      transition:.15s ease;
+      user-select:none;
+    }
+    .tag.active{
+      background:rgba(255,255,255,.92);
+      color:#101218;
+      border-color:rgba(255,255,255,.5);
+    }
+    .range{
+      width:100%;
+      accent-color: #fff;
+    }
+    .muted{color:var(--muted)}
+    .catalog{
+      grid-column: span 9;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow: 0 12px 25px rgba(0,0,0,.25);
+      display:flex;
+      flex-direction:column;
+      min-height: 320px;
+    }
+    .thumb{
+      height:160px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(240px 160px at 25% 15%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+      display:flex; align-items:flex-end; justify-content:space-between;
+      padding:12px;
+      overflow:hidden;
+      position:relative;
+    }
+    .thumb:before{
+      content:"";
+      position:absolute; inset:-40px -60px auto auto;
+      width:180px; height:180px; border-radius:999px;
+      background:rgba(255,255,255,.08);
+      filter:blur(0px);
+      transform: rotate(12deg);
+    }
+    .thumb .pill2{
+      position:relative;
+      font-size:12px;
+      color:rgba(16,18,24,.9);
+      background:rgba(255,255,255,.92);
+      padding:7px 10px;
+      border-radius:999px;
+    }
+    .thumb .sku{
+      position:relative;
+      font-size:12px;
+      color:rgba(255,255,255,.85);
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+      padding:7px 10px;
+      border-radius:999px;
+    }
+    .title{margin:12px 0 6px; font-size:15px; letter-spacing:.02em}
+    .desc{margin:0; color:var(--muted); font-size:13px; line-height:1.5; min-height:40px}
+    .priceRow{
+      margin-top:auto;
+      display:flex; align-items:end; justify-content:space-between;
+      gap:10px;
+      padding-top:12px;
+    }
+    .price{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .price strong{font-size:16px}
+    .price small{color:var(--muted)}
+    .add{
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(255,255,255,.10);
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:.15s ease;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .add:hover{background:rgba(255,255,255,.16)}
+    .empty{
+      grid-column:1/-1;
+      padding:28px;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius:var(--radius);
+      color:var(--muted);
+      text-align:center;
+    }
+
+    /* Cart drawer */
+    .overlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.55);
+      opacity:0; pointer-events:none;
+      transition:.18s ease;
+      z-index:80;
+    }
+    .overlay.show{opacity:1; pointer-events:auto}
+    .drawer{
+      position:fixed; top:0; right:0; height:100%; width:min(420px, 92vw);
+      background: linear-gradient(180deg, rgba(20,24,38,.98), rgba(17,19,26,.98));
+      border-left:1px solid rgba(255,255,255,.10);
+      transform: translateX(102%);
+      transition:.22s ease;
+      z-index:90;
+      display:flex; flex-direction:column;
+      box-shadow: -20px 0 40px rgba(0,0,0,.35);
+    }
+    .drawer.show{transform:translateX(0)}
+    .drawerHead{
+      padding:16px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .drawerHead h2{margin:0; font-size:14px; letter-spacing:.10em}
+    .close{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      padding:8px 10px;
+      border-radius:999px;
+    }
+    .cartList{
+      padding:12px 16px;
+      overflow:auto;
+      flex:1;
+    }
+    .cartItem{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      padding:12px 0;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .cartItem .name{font-size:13px}
+    .cartItem .meta{color:var(--muted); font-size:12px; margin-top:4px}
+    .qty{
+      display:flex; align-items:center; gap:8px;
+    }
+    .qty button{
+      width:30px; height:30px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+    }
+    .qty span{min-width:20px; text-align:center; font-size:13px}
+    .remove{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      cursor:pointer;
+      font-size:12px;
+      padding:0;
+      text-decoration:underline;
+    }
+    .drawerFoot{
+      border-top:1px solid var(--line);
+      padding:14px 16px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .row2{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .promo{
+      display:flex; gap:8px;
+    }
+    .promo input{
+      flex:1;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
+    }
+    .primary{
+      width:100%;
+      background:rgba(255,255,255,.92);
+      color:#101218;
+      border:0;
+      border-radius:999px;
+      padding:12px 14px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .primary:hover{filter:brightness(.98)}
+    .note{color:var(--muted); font-size:12px; line-height:1.5}
+
+    footer{
+      border-top:1px solid var(--line);
+      padding:18px 0 26px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width: 980px){
+      .heroCard{grid-template-columns:1fr}
+      .heroSide{border-left:0; padding-left:0; border-top:1px solid var(--line); padding-top:14px}
+      .filters{grid-column: span 12}
+      .catalog{grid-column: span 12; grid-template-columns: repeat(2, 1fr)}
+      .pill input{min-width:160px}
+    }
+    @media (max-width: 560px){
+      .catalog{grid-template-columns: 1fr}
+      .pill{width:100%}
+      .tools{width:100%}
+    }
+  </style>
+</head>
+
+<body>
+<div id="show"></div>
+<header>
+  <div class="topbar">
+    <div class="brand" role="banner" aria-label="品牌">
+      <strong>G2000</strong><span>ONLINE STORE · DEMO</span>
+    </div>
+
+    <div class="tools" role="toolbar" aria-label="工具列">
+      <div class="pill" title="搜尋商品">
+        🔎 <input id="q" placeholder="搜尋：西裝、襯衫、針織…" autocomplete="off" />
+      </div>
+
+      <div class="pill" title="排序">
+        ⇅
+        <select id="sort">
+          <option value="featured">精選</option>
+          <option value="price-asc">價格：低 → 高</option>
+          <option value="price-desc">價格：高 → 低</option>
+          <option value="new">最新上架</option>
+        </select>
+      </div>
+
+      <div class="btn" id="openCart" aria-label="開啟購物車">
+        🛒 購物車 <span class="badge" id="cartCount">0</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="heroCard">
+      <div>
+        <h1>極簡質感 · 正裝與日常的俐落選擇</h1>
+        <p>這是一個可直接打開使用的前端示範站：包含商品瀏覽、分類與價格篩選、購物車與折扣碼。你可用它當作作業/提案/原型，之後再串接後端與金流。</p>
+        <div class="meta">
+          <span class="chip">免框架 · 單檔即可跑</span>
+          <span class="chip">RWD 響應式</span>
+          <span class="chip">購物車抽屜</span>
+          <span class="chip">折扣碼：G2000OFF</span>
+        </div>
+      </div>
+      <div class="heroSide">
+        <div><strong>今日主打</strong><br>羊毛混紡西裝套裝 · 俐落剪裁</div>
+        <div><strong>到貨更新</strong><br>上班襯衫、修身長褲、針織外套</div>
+        <div><strong>小提醒</strong><br>此為示範站，商品與價格為範例資料</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <!-- Filters -->
+    <aside class="filters" aria-label="篩選">
+      <h3>篩選</h3>
+
+      <div class="group">
+        <div class="label">分類</div>
+        <div class="row" id="catTags"></div>
+      </div>
+
+      <div class="group">
+        <div class="label">適用場合</div>
+        <div class="row" id="useTags"></div>
+      </div>
+
+      <div class="group">
+        <div class="label">最高價格：<span id="priceLabel" class="muted"></span></div>
+        <input class="range" id="priceMax" type="range" min="500" max="8000" step="100" />
+        <div class="muted" style="font-size:12px;margin-top:6px">提示：可搭配搜尋與排序一起用</div>
+      </div>
+
+      <div class="group">
+        <button class="btn" id="reset" style="width:100%; justify-content:center">↺ 重設條件</button>
+      </div>
+    </aside>
+
+    <!-- Catalog -->
+    <section class="catalog" id="catalog" aria-label="商品列表"></section>
+  </section>
+
+  <footer class="wrap">
+    <div>© <span id="year"></span> G2000 Demo Store · 這是示範用前端頁面（非官方網站）。</div>
+  </footer>
+</main>
+
+<!-- Cart Drawer -->
+<div class="overlay" id="overlay" aria-hidden="true"></div>
+<aside class="drawer" id="drawer" aria-label="購物車">
+  <div class="drawerHead">
+    <h2>購物車</h2>
+    <button class="close" id="closeCart" aria-label="關閉">✕</button>
+  </div>
+
+  <div class="cartList" id="cartList"></div>
+
+  <div class="drawerFoot">
+    <div class="promo">
+      <input id="promo" placeholder="折扣碼（試試：G2000OFF）" />
+      <button class="btn" id="applyPromo">套用</button>
+    </div>
+
+    <div class="row2">
+      <div class="muted">小計</div>
+      <div><strong id="subtotal">$0</strong></div>
+    </div>
+
+    <div class="row2">
+      <div class="muted">折扣</div>
+      <div><strong id="discount">-$0</strong></div>
+    </div>
+
+    <div class="row2" style="border-top:1px solid rgba(255,255,255,.08); padding-top:10px">
+      <div class="muted">合計</div>
+      <div><strong id="total">$0</strong></div>
+    </div>
+
+    <button class="primary" id="checkout">前往結帳</button>
+    <div class="note" id="note"></div>
+  </div>
+</aside>
+
+<script>
+  // ---------- Demo data ----------
+  const PRODUCTS = [
+  {
+    id:"GM-001",
+    name:"標準領長袖西裝外套",
+    cat:"西裝",
+    use:"正式",
+    price:1699,
+    desc:"質感剪裁的獨立西裝外套，適合正式場合穿搭。",
+    featured:true,
+    ts: 1736200000000,
+    img:"https://www.g2000.com.tw/SalePage/Index/11076240"
+  },
+  {
+    id:"GM-002",
+    name:"休閒襯衫（白）",
+    cat:"襯衫",
+    use:"日常",
+    price:749,
+    desc:"輕薄休閒襯衫，百搭款式。",
+    featured:true,
+    ts: 1736100000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/casual-shirt-59122345-White_600x.jpg"
+  },
+  {
+    id:"GM-003",
+    name:"經典短袖 T 恤（黑）",
+    cat:"上衣",
+    use:"日常",
+    price:499,
+    desc:"基本款短袖 T 恤，日常百搭。",
+    featured:true,
+    ts: 1736400000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/classic-tee-58911234-Black_600x.jpg"
+  },
+  {
+    id:"GM-004",
+    name:"長袖條紋襯衫",
+    cat:"襯衫",
+    use:"通勤",
+    price:899,
+    desc:"條紋造型襯衫，正式又不失設計感。",
+    featured:false,
+    ts: 1736000000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/stripe-dress-shirt-59244521-White_600x.jpg"
+  },
+  {
+    id:"GM-005",
+    name:"修身長褲（深灰）",
+    cat:"褲裝",
+    use:"正式",
+    price:1099,
+    desc:"修身剪裁長褲，版型俐落。",
+    featured:true,
+    ts: 1736600000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/slim-fit-pants-59322111-Charcoal_600x.jpg"
+  },
+  {
+    id:"GM-006",
+    name:"正式長褲（海軍藍）",
+    cat:"褲裝",
+    use:"正式",
+    price:1199,
+    desc:"商務正式長褲，質料細緻。",
+    featured:false,
+    ts: 1735900000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/formal-trousers-59412341-Navy_600x.jpg"
+  },
+  {
+    id:"GM-007",
+    name:"輕量外套（灰）",
+    cat:"外套",
+    use:"日常",
+    price:1299,
+    desc:"輕便外套，適合日常穿搭。",
+    featured:false,
+    ts: 1735800000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/light-jacket-59298765-Grey_600x.jpg"
+  },
+  {
+    id:"GM-008",
+    name:"俐落西裝外套（黑）",
+    cat:"西裝",
+    use:"正式",
+    price:1899,
+    desc:"俐落剪裁西裝外套，經典款式。",
+    featured:true,
+    ts: 1736500000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/blazer-suit-59199887-Black_600x.jpg"
+  },
+  {
+    id:"GM-009",
+    name:"圓領針織上衣",
+    cat:"針織",
+    use:"日常",
+    price:799,
+    desc:"圓領針織上衣，舒適柔軟。",
+    featured:false,
+    ts: 1735700000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/knit-top-59077654-Beige_600x.jpg"
+  },
+  {
+    id:"GM-010",
+    name:"高領針織毛衣（棕）",
+    cat:"針織",
+    use:"通勤",
+    price:899,
+    desc:"高領針織毛衣，秋冬必備。",
+    featured:true,
+    ts: 1736300000000,
+    img:"https://cdn.shopify.com/s/files/1/0362/2068/9384/products/turtleneck-sweater-59258881-Brown_600x.jpg"
+  }
+];
+  document.getElementById("show").innerHTML =
+  "<img src='" + PRODUCTS[0].img + "' width='300'>";
+
+  const CATS = ["全部","西裝","襯衫","上衣","褲裝","針織","外套","配件"];
+  const USES = ["全部","正式","通勤","日常"];
+
+  // ---------- State ----------
+  const state = {
+    q: "",
+    cat: "全部",
+    use: "全部",
+    priceMax: 8000,
+    sort: "featured",
+    cart: {},            // { productId: qty }
+    promo: null,         // { code, rate }
+  };
+
+  // ---------- Helpers ----------
+  const $ = (sel) => document.querySelector(sel);
+  const fmt = (n) => "$" + n.toLocaleString("zh-Hant-TW");
+  const getProduct = (id) => PRODUCTS.find(p => p.id === id);
+
+  function computeSubtotal(){
+    let sum = 0;
+    for (const [id, qty] of Object.entries(state.cart)){
+      const p = getProduct(id);
+      if (p) sum += p.price * qty;
+    }
+    return sum;
+  }
+
+  function computeDiscount(subtotal){
+    if (!state.promo) return 0;
+    return Math.round(subtotal * state.promo.rate);
+  }
+
+  function cartCount(){
+    return Object.values(state.cart).reduce((a,b)=>a+b,0);
+  }
+
+  // ---------- Render filters ----------
+  function renderTags(containerId, items, activeValue, onClick){
+    const el = document.getElementById(containerId);
+    el.innerHTML = "";
+    items.forEach(v => {
+      const tag = document.createElement("div");
+      tag.className = "tag" + (v === activeValue ? " active" : "");
+      tag.textContent = v;
+      tag.onclick = () => onClick(v);
+      el.appendChild(tag);
+    });
+  }
+
+  // ---------- Catalog ----------
+  function filteredProducts(){
+    const q = state.q.trim().toLowerCase();
+    let list = PRODUCTS.filter(p => {
+      const matchQ = !q || (p.name + " " + p.desc + " " + p.cat + " " + p.use).toLowerCase().includes(q);
+      const matchCat = state.cat === "全部" || p.cat === state.cat;
+      const matchUse = state.use === "全部" || p.use === state.use;
+      const matchPrice = p.price <= state.priceMax;
+      return matchQ && matchCat && matchUse && matchPrice;
+    });
+
+    switch (state.sort){
+      case "price-asc": list.sort((a,b)=>a.price-b.price); break;
+      case "price-desc": list.sort((a,b)=>b.price-a.price); break;
+      case "new": list.sort((a,b)=>b.ts-a.ts); break;
+      case "featured":
+      default:
+        list.sort((a,b)=> (b.featured - a.featured) || (b.ts - a.ts));
+        break;
+    }
+    return list;
+  }
+
+  function renderCatalog(){
+    const el = $("#catalog");
+    const list = filteredProducts();
+    el.innerHTML = "";
+
+    if (list.length === 0){
+      const div = document.createElement("div");
+      div.className = "empty";
+      div.innerHTML = "找不到符合條件的商品。<br><span class='muted'>試試放寬價格、切換分類或清除搜尋關鍵字。</span>";
+      el.appendChild(div);
+      return;
+    }
+
+    list.forEach(p => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      thumb.innerHTML = `<span class="pill2">${p.use}</span><span class="sku">${p.id}</span>`;
+
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = p.name;
+
+      const desc = document.createElement("p");
+      desc.className = "desc";
+      desc.textContent = p.desc;
+
+      const priceRow = document.createElement("div");
+      priceRow.className = "priceRow";
+      priceRow.innerHTML = `
+        <div class="price">
+          <strong>${fmt(p.price)}</strong>
+          <small>${p.cat} · ${p.use}</small>
+        </div>
+        <button class="add" aria-label="加入購物車">加入購物車</button>
+      `;
+
+      priceRow.querySelector("button").onclick = () => {
+        state.cart[p.id] = (state.cart[p.id] || 0) + 1;
+        renderCartBadge();
+        renderCart();
+        openCart();
+      };
+
+      card.appendChild(thumb);
+      card.appendChild(title);
+      card.appendChild(desc);
+      card.appendChild(priceRow);
+      el.appendChild(card);
+    });
+  }
+
+  // ---------- Cart ----------
+  function renderCartBadge(){
+    $("#cartCount").textContent = cartCount();
+  }
+
+  function renderCart(){
+    const listEl = $("#cartList");
+    listEl.innerHTML = "";
+
+    const ids = Object.keys(state.cart);
+    if (ids.length === 0){
+      const div = document.createElement("div");
+      div.className = "empty";
+      div.style.marginTop = "10px";
+      div.innerHTML = "購物車目前是空的。<br><span class='muted'>從右側加入你喜歡的商品吧！</span>";
+      listEl.appendChild(div);
+    } else {
+      ids.forEach(id => {
+        const p = getProduct(id);
+        if (!p) return;
+
+        const qty = state.cart[id];
+
+        const item = document.createElement("div");
+        item.className = "cartItem";
+
+        item.innerHTML = `
+          <div>
+            <div class="name">${p.name}</div>
+            <div class="meta">${p.cat} · ${p.use} · 單價 ${fmt(p.price)}</div>
+            <button class="remove">移除</button>
+          </div>
+          <div style="text-align:right">
+            <div class="qty" aria-label="數量調整">
+              <button aria-label="減少">−</button>
+              <span>${qty}</span>
+              <button aria-label="增加">＋</button>
+            </div>
+            <div class="meta" style="margin-top:8px">小計 ${fmt(p.price * qty)}</div>
+          </div>
+        `;
+
+        const [minusBtn, , plusBtn] = item.querySelectorAll(".qty button, .qty span");
+        minusBtn.onclick = () => {
+          state.cart[id] = Math.max(0, (state.cart[id]||0) - 1);
+          if (state.cart[id] === 0) delete state.cart[id];
+          renderCartBadge(); renderCart(); renderTotals();
+        };
+        plusBtn.onclick = () => {
+          state.cart[id] = (state.cart[id]||0) + 1;
+          renderCartBadge(); renderCart(); renderTotals();
+        };
+        item.querySelector(".remove").onclick = () => {
+          delete state.cart[id];
+          renderCartBadge(); renderCart(); renderTotals();
+        };
+
+        listEl.appendChild(item);
+      });
+    }
+
+    renderTotals();
+  }
+
+  function renderTotals(){
+    const subtotal = computeSubtotal();
+    const discount = computeDiscount(subtotal);
+    const total = Math.max(0, subtotal - discount);
+
+    $("#subtotal").textContent = fmt(subtotal);
+    $("#discount").textContent = "-"+fmt(discount).replace("$","$");
+    $("#total").textContent = fmt(total);
+
+    const note = $("#note");
+    if (state.promo){
+      note.textContent = `已套用折扣碼 ${state.promo.code}（${Math.round(state.promo.rate*100)}% off）。`;
+    } else {
+      note.textContent = "可輸入折扣碼：G2000OFF（10% off）";
+    }
+  }
+
+  // ---------- Drawer ----------
+  function openCart(){
+    $("#overlay").classList.add("show");
+    $("#drawer").classList.add("show");
+    $("#overlay").setAttribute("aria-hidden","false");
+  }
+  function closeCart(){
+    $("#overlay").classList.remove("show");
+    $("#drawer").classList.remove("show");
+    $("#overlay").setAttribute("aria-hidden","true");
+  }
+
+  // ---------- Events ----------
+  $("#openCart").onclick = () => { renderCart(); openCart(); };
+  $("#closeCart").onclick = closeCart;
+  $("#overlay").onclick = closeCart;
+
+  $("#q").addEventListener("input", (e)=>{
+    state.q = e.target.value;
+    renderCatalog();
+  });
+
+  $("#sort").addEventListener("change", (e)=>{
+    state.sort = e.target.value;
+    renderCatalog();
+  });
+
+  $("#priceMax").addEventListener("input", (e)=>{
+    state.priceMax = Number(e.target.value);
+    $("#priceLabel").textContent = fmt(state.priceMax);
+    renderCatalog();
+  });
+
+  $("#reset").onclick = () => {
+    state.q = "";
+    state.cat = "全部";
+    state.use = "全部";
+    state.priceMax = 8000;
+    state.sort = "featured";
+    $("#q").value = "";
+    $("#sort").value = "featured";
+    $("#priceMax").value = 8000;
+    $("#priceLabel").textContent = fmt(8000);
+    renderTags("catTags", CATS, state.cat, (v)=>{ state.cat=v; renderTags("catTags", CATS, state.cat, arguments.callee); renderCatalog(); });
+  };
+
+  $("#applyPromo").onclick = () => {
+    const code = ($("#promo").value || "").trim().toUpperCase();
+    if (!code){
+      state.promo = null;
+      renderTotals();
+      return;
+    }
+    if (code === "G2000OFF"){
+      state.promo = { code, rate: 0.10 };
+      renderTotals();
+      alert("折扣碼已套用：10% off");
+    } else {
+      state.promo = null;
+      renderTotals();
+      alert("折扣碼無效（試試：G2000OFF）");
+    }
+  };
+
+  $("#checkout").onclick = () => {
+    const total = Math.max(0, computeSubtotal() - computeDiscount(computeSubtotal()));
+    if (cartCount() === 0){
+      alert("購物車是空的，先加入商品再結帳～");
+      return;
+    }
+    alert("（Demo）結帳成功！\n本次應付：" + fmt(total) + "\n\n下一步你可以串：會員 / 物流 / 金流 / 後台庫存。");
+    state.cart = {};
+    state.promo = null;
+    $("#promo").value = "";
+    renderCartBadge(); renderCart(); renderTotals();
+    closeCart();
+  };
+
+  // ---------- Init ----------
+  function init(){
+    $("#year").textContent = new Date().getFullYear();
+
+    renderTags("catTags", CATS, state.cat, (v)=>{
+      state.cat = v;
+      renderTags("catTags", CATS, state.cat, arguments.callee);
+      renderCatalog();
+    });
+
+    renderTags("useTags", USES, state.use, (v)=>{
+      state.use = v;
+      renderTags("useTags", USES, state.use, arguments.callee);
+      renderCatalog();
+    });
+
+    $("#priceMax").value = state.priceMax;
+    $("#priceLabel").textContent = fmt(state.priceMax);
+
+    renderCatalog();
+    renderCartBadge();
+    renderCart();
+  }
+  init();
+</script>
+</body>
+</html>
